@@ -1,0 +1,84 @@
+# Docker Compose file format version
+version: "3.8"
+
+services:
+  # PostgreSQL database
+  db:
+    # Uses postgres:15 as our base image
+    image: postgres:15
+    # Sets enviornment variables for PostgreSQL container
+    environment:
+      # database name
+      POSTGRES_DB: bobyard_db
+      # superuser
+      POSTGRES_USER: postgres
+      # superuser password
+      POSTGRES_PASSWORD: password
+      # default user
+      PGUSER: postgres
+    # Maps postgres_data volume to containers data directory
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Maps port 5432 on the host to container
+    ports:
+      - "5432:5432"
+
+  # Django backend
+  backend:
+    # built from backed/Dockerfile
+    build: ./backend
+    # Maps port 8000 on the host to container
+    ports:
+      - "8000:8000"
+    # Ensures db service starts before this (does not guarentee the db is fully initialized)
+    depends_on:
+      - db
+    # Sets enviornment variables for Django app
+    environment:
+      - DB_NAME=bobyard_db
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DJANGO_SECRET_KEY=your-secure-random-key
+    volumes:
+      # Mounts ./backend directory to /app in the container
+      # Syncs local code with container (enables live code reloading during development)
+      - ./backend:/app
+      # Mounts comments.json from local directory to /app/comments.json in the container
+      # Used to seed data
+      - ./comments.json:/app/comments.json
+    # Overrides Dockerfile CMD
+    # Runs shell command to:
+    # Wait 10 seconds ensuring db service is ready
+    # Generate Django migration files based on model changes
+    # Applies db migrations
+    # Starts Django development server on port 8000
+    command: >
+      sh -c "sleep 10 &&
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  # React frontend
+  frontend:
+    # built from frontend/Dockerfile
+    build: ./frontend
+    # Maps port 3000 on the host to container
+    ports:
+      - "3000:3000"
+    # Ensures backend service starts before this
+    depends_on:
+      - backend
+    # Sets environment variables for React app
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    volumes:
+      # Mounts ./frontend directory to /app in the container
+      - ./frontend:/app
+      # Creates an anonymous volume in the container to preserve node modules
+      - /app/node_modules
+
+# Volumes for persistent data storage across container restarts
+volumes:
+  postgres_data:
