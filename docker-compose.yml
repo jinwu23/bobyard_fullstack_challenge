@@ -1,6 +1,3 @@
-# Docker Compose file format version
-version: "3.8"
-
 services:
   # PostgreSQL database
   db:
@@ -22,6 +19,12 @@ services:
     # Maps port 5432 on the host to container
     ports:
       - "5432:5432"
+    # Defines the health check for the db service
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
 
   # Django backend
   backend:
@@ -31,8 +34,10 @@ services:
     ports:
       - "8000:8000"
     # Ensures db service starts before this (does not guarentee the db is fully initialized)
+    # Guarentees the db is fully intialized
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     # Sets enviornment variables for Django app
     environment:
       - DB_NAME=bobyard_db
@@ -50,15 +55,21 @@ services:
       - ./comments.json:/app/comments.json
     # Overrides Dockerfile CMD
     # Runs shell command to:
-    # Wait 10 seconds ensuring db service is ready
     # Generate Django migration files based on model changes
     # Applies db migrations
     # Starts Django development server on port 8000
     command: >
-      sh -c "sleep 10 &&
-             python manage.py makemigrations &&
+      sh -c "python manage.py makemigrations &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
+    # defines the health check for the backend service
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -fs http://localhost:8000/api/comments/ || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
 
   # React frontend
   frontend:
@@ -68,8 +79,10 @@ services:
     ports:
       - "3000:3000"
     # Ensures backend service starts before this
+    # Guarentees the bacvkend is fully intialized
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     # Sets environment variables for React app
     environment:
       - REACT_APP_API_URL=http://localhost:8000/api

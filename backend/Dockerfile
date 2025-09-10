@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy requirements
 COPY requirements.txt .
 
+# Install system dependencies (curl for health checks)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Install app dependencies
 RUN pip install -r requirements.txt
 
