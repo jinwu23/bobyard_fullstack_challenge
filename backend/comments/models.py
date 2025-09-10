@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+# Defines Model for Comment Schema
 class Comment(models.Model):
     text = models.TextField()
     author = models.CharField(max_length=100, default='Admin')

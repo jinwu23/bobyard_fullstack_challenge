@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+# Configures Django Project
+
 # Defines root directory /backend
 BASE_DIR = Path(__file__).resolve().parent.parent
 
