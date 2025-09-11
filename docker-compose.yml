@@ -66,9 +66,9 @@ services:
     healthcheck:
       test:
         ["CMD-SHELL", "curl -fs http://localhost:8000/api/comments/ || exit 1"]
-      interval: 5s
+      interval: 10s
       timeout: 10s
-      retries: 10
+      retries: 5
       start_period: 40s
 
   # React frontend

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const CommentCard = ({ comment, onUpdate, onDelete }) => {
+const CommentCard = ({ comment, comments, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(comment.text);
 
@@ -105,7 +105,7 @@ const CommentCard = ({ comment, onUpdate, onDelete }) => {
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+      <div className="flex items-center justify-between mb-2 pt-3 border-t border-gray-100">
         <div className="flex items-center space-x-1">
           <svg
             className="w-5 h-5 text-red-500"
@@ -121,6 +121,20 @@ const CommentCard = ({ comment, onUpdate, onDelete }) => {
           <span className="text-sm text-gray-600">{comment.likes} likes</span>
         </div>
       </div>
+
+      {/* Replies */}
+      {comments.map(
+        (reply) =>
+          Number(reply.parent) === Number(comment.id) && (
+            <CommentCard
+              key={reply.id}
+              comment={reply}
+              comments={comments}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+            />
+          )
+      )}
     </div>
   );
 };

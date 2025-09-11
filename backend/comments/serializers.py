@@ -5,7 +5,7 @@ from .models import Comment
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'text', 'author', 'date', 'likes', 'image_url']
+        fields = ['id', 'text', 'author', 'parent', 'date', 'likes', 'image_url']
         read_only_fields = ['id', 'date']
     
     # Override default create method ensuring all created comments are Admins

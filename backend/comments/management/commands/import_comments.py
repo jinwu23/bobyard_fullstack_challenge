@@ -61,8 +61,10 @@ class Command(BaseCommand):
 
                 # Create comment
                 comment = Comment.objects.create(
+                    id=comment_data.get('id'),
                     text=comment_data.get('text', ''),
                     author=comment_data.get('author', 'Admin'),
+                    parent=comment_data.get('parent', ''),
                     date=parsed_date if parsed_date else None,
                     likes=comment_data.get('likes', 0),
                     image_url=comment_data.get('image', '') or None

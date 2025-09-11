@@ -28,6 +28,14 @@ INSTALLED_APPS = [
 ]
 
 # Adds security to project
+# CorsMiddleware handles Cross-Origin Resource Sharing
+# Security Middleware enforces security features like HSTS or secure cookies
+# SessionMiddleware enables session management
+# CommonMiddleware handles common tasks like URL normilization and appending slashes
+# CsrfViewMiddleware protects against CSRF by validating tokens
+# AuthenticationMiddleware adds authenticated user to request object, enables user auth in views
+# MessageMiddleware supports Djangos messaging framework for one time notifications
+# XFrameOptionsMiddleware prevents clickjacking
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -103,10 +111,7 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configures Django REST Framework settings
-REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20
-}
+REST_FRAMEWORK = {}
 
 # Specifies which origins can make cross origin requests to backend
 CORS_ALLOWED_ORIGINS = [

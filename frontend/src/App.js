@@ -117,14 +117,19 @@ function App() {
             </div>
           ) : (
             <div>
-              {comments.map((comment) => (
-                <CommentCard
-                  key={comment.id}
-                  comment={comment}
-                  onUpdate={handleUpdateComment}
-                  onDelete={handleDeleteComment}
-                />
-              ))}
+              {/* Parent Comments */}
+              {comments.map(
+                (comment) =>
+                  !comment.parent && (
+                    <CommentCard
+                      key={comment.id}
+                      comment={comment}
+                      comments={comments}
+                      onUpdate={handleUpdateComment}
+                      onDelete={handleDeleteComment}
+                    />
+                  )
+              )}
             </div>
           )}
         </div>
